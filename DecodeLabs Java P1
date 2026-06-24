@@ -1,0 +1,96 @@
+import java.util.InputMismatchException;
+import java.util.Random;
+import java.util.Scanner;
+
+/**
+ * DecodeLabs Industrial Training Kit - Java Programming
+ * Project 1: Number Guessing Game
+ *
+ * The program picks a random number between 1 and 100 and lets the
+ * player keep guessing until they get it right or run out of attempts.
+ * Includes attempt limiting, score tracking, multiple rounds, and
+ * input validation so a bad input doesn't crash the program.
+ */
+public class DecodeLabs_Java_P1 {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Random random = new Random();
+
+        int totalScore = 0;
+        int roundsPlayed = 0;
+        boolean playAgain = true;
+
+        System.out.println("=================================");
+        System.out.println("   WELCOME TO THE NUMBER GAME!");
+        System.out.println("=================================");
+
+        // do-while loop so the game runs at least once, and again if the
+        // player wants another round (session persistence)
+        do {
+            roundsPlayed++;
+            int target = random.nextInt(100) + 1; // 1 to 100 inclusive
+            int maxAttempts = 7;                  // limit the number of attempts
+            int attemptsUsed = 0;
+            boolean hasWon = false;
+
+            System.out.println("\nRound " + roundsPlayed + ": I'm thinking of a number between 1 and 100.");
+            System.out.println("You have " + maxAttempts + " attempts. Good luck!");
+
+            while (attemptsUsed < maxAttempts && !hasWon) {
+                int guess;
+
+                // Defensive engineering: handle non-integer input without crashing
+                System.out.print("Enter your guess: ");
+                try {
+                    guess = sc.nextInt();
+                    sc.nextLine(); // flush the buffer (avoid the scanner trap)
+                } catch (InputMismatchException e) {
+                    System.out.println("That's not a valid number. Please enter an integer.");
+                    sc.nextLine(); // clear the bad input so we don't loop forever
+                    continue;
+                }
+
+                attemptsUsed++;
+
+                if (guess == target) {
+                    hasWon = true;
+                    int pointsEarned = Math.max(maxAttempts - attemptsUsed + 1, 1);
+                    totalScore += pointsEarned;
+                    System.out.println("Correct! You guessed it in " + attemptsUsed + " attempt(s).");
+                    System.out.println("You earned " + pointsEarned + " point(s) this round.");
+                } else if (guess > target) {
+                    System.out.println("Too high! Attempts left: " + (maxAttempts - attemptsUsed));
+                } else {
+                    System.out.println("Too low! Attempts left: " + (maxAttempts - attemptsUsed));
+                }
+            }
+
+            if (!hasWon) {
+                System.out.println("Out of attempts! The number was: " + target);
+            }
+
+            System.out.println("Current total score: " + totalScore);
+
+            // Ask if the player wants another round
+            String response = "";
+            while (true) {
+                System.out.print("Play again? (Y/N): ");
+                response = sc.nextLine().trim().toUpperCase();
+                if (response.equals("Y") || response.equals("N")) {
+                    break;
+                }
+                System.out.println("Please enter Y or N.");
+            }
+            playAgain = response.equals("Y");
+
+        } while (playAgain);
+
+        System.out.println("\n=================================");
+        System.out.println("Thanks for playing! Rounds played: " + roundsPlayed);
+        System.out.println("Final score: " + totalScore);
+        System.out.println("=================================");
+
+        sc.close();
+    }
+}
